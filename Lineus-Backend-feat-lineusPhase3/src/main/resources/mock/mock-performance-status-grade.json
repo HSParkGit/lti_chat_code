@@ -1,0 +1,56 @@
+[
+  {
+    "grade": {
+      "id": 1,
+      "item": "Attendance",
+      "type": "attendance",
+      "weight": 100,
+      "scores": 85,
+      "mark": 50,
+      "status": "-",
+      "subGrade": [
+        {
+          "id": 2,
+          "item": "OnSite",
+          "weight": 50,
+          "scores": 40,
+          "mark": 50,
+          "status": "-"
+        },
+        {
+          "id": 3,
+          "item": "Online",
+          "weight": 50,
+          "scores": 45,
+          "mark": 50,
+          "status": "-"
+        }
+      ]
+    }
+  },
+  {
+    "grade": {
+      "id": 2,
+      "item": "Assignment",
+      "type": "other",
+      "weight": 101,
+      "scores": 80,
+      "mark": 50,
+      "status": "-",
+      "subGrade": []
+    }
+  },
+  {
+    "grade": {
+      "id": 3,
+      "item": "Assignment II",
+      "type": "other",
+      "weight": 101,
+      "scores": 80,
+      "mark": 50,
+      "status": "-",
+      "subGrade": []
+    }
+  }
+
+]

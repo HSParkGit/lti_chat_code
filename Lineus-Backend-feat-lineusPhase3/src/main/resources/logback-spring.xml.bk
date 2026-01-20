@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 변경사항 확인을 위한 자동스캔 활성화(기본값 : 1분 간격) -->
+<configuration scan="false" scanPeriod="60 seconds">
+    <!-- [ 공통 설정 ] -->
+
+    <!-- (변수 정의) 로그파일 저장경로, source는 application.yml 참조 -->
+    <springProperty name="LOG_PATH" source="${log.config.path}"/>
+    <!-- (변수 정의) 로그 패턴 - 콘솔로그 -->
+    <property name="LOG_PATTERN_CONSOLE"
+              value="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative]%clr([%thread]){magenta} %clr(%-5level){} %clr(%logger{36}){cyan} - %msg %n"/>
+    <!-- (변수 정의) 로그 패턴 - 파일로그 -->
+    <property name="LOG_PATTERN_FILE"
+              value="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{36} - %msg%n"/>
+    <!-- (변수 정의) Base Package -->
+    <property name="BASE_PACKAGE" value="kr.lineedu"/>
+
+    <!-- logback로그 기록시 색상 적용 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+
+    <!-- (Appender 설정) - Console 출력 방식 -->
+    <appender name="console-logging" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- 로그 출력 패턴(형식) -->
+            <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- (Appender 설정) - 일일단위 로그파일 분할 방식 -->
+    <appender name="dailyFileBased-logging" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 기록중인 상태의 로그파일명(가장 최근 로그파일, 'tail -f'로 조회) -->
+        <file>${LOG_PATH}/${FILENAME}.log</file>
+        <encoder>
+            <!-- 로그파일에 기록되는 패턴(형식) -->
+            <pattern>${LOG_PATTERN_FILE}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 파일 쓰기 종료 시점의 로그파일명(압축하여 저장) -->
+            <!--<fileNamePattern>${LOG_PATH}/${FILENAME}-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>-->
+            <!-- 파일 쓰기 종료 시점의 로그파일명(압축하지 않음) -->
+            <fileNamePattern>${LOG_PATH}/${FILENAME}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 로그파일 1개당 최대용량 설정 -->
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 일 단위 보관, 최대 30일 까지(fileNamePattern의 날짜(%d)에서 일단위 기록으로 설정했기 때문) -->
+            <maxHistory>30</maxHistory>
+            <!-- 모든 로그파일 용량 최대치 설정 -->
+            <totalSizeCap>3GB</totalSizeCap>
+            <!-- 앱 시작시 기존의 아카이빙된 로그파일 삭제 -->
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- (Appender 설정) - 로그파일 용량에 따른 파일 분할 방식 -->
+    <appender name="fileSizeBased-all-logging" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 기록중인 상태의 로그파일명(가장 최근 로그파일, 'tail -f'로 조회) -->
+        <file>${LOG_PATH}/${FILENAME}.log</file>
+        <encoder>
+            <!-- 로그파일에 기록되는 패턴(형식) -->
+            <pattern>${LOG_PATTERN_FILE}</pattern>
+        </encoder>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <!--활성 로그파일의 용량이 100MB이상이 될 경우 rollingPolicy 적용(파일 분할)-->
+            <maxFileSize>100MB</maxFileSize>
+        </triggeringPolicy>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 파일 쓰기 종료 시점의 로그파일명(압축하여 저장) -->
+            <fileNamePattern>${LOG_PATH}/${FILENAME}-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>
+            <!-- 파일 쓰기 종료 시점의 로그파일명(압축하지 않음) -->
+            <!--<fileNamePattern>$${LOG_PATH}/{FILENAME}-%d{yyyy-MM-dd}-%i.log</fileNamePattern>-->
+            <!-- 모든 로그파일 용량 최대치 설정 -->
+            <totalSizeCap>3GB</totalSizeCap>
+            <!-- 앱 시작시 기존의 아카이빙된 로그파일 삭제 -->
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- (Appender 설정) - 특정 로그 레벨(error)만 따로 분리 -->
+    <appender name="fileSizeBased-error-logging" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- log filter 적용 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <!-- 기록중인 상태의 로그파일명(가장 최근 로그파일, 'tail -f'로 조회) -->
+        <file>${LOG_PATH}/${FILENAME}-error.log</file>
+        <encoder>
+            <!-- 로그파일에 기록되는 패턴(형식) -->
+            <pattern>${LOG_PATTERN_FILE}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 파일 쓰기 종료 시점의 로그파일명(압축하여 저장) -->
+            <!--<fileNamePattern>${LOG_PATH}/${FILENAME}-error-%d{yyyy-MM-dd}-%i.gz</fileNamePattern>-->
+            <!-- 파일 쓰기 종료 시점의 로그파일명(압축하지 않음) -->
+            <fileNamePattern>${LOG_PATH}/${FILENAME}-error-%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <!-- 로그파일 1개당 최대용량 설정 -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 최대 30일 까지 보관(fileNamePattern의 날짜(%d)에서 일단위 기록으로 설정했기 때문에 일 단위 보관) -->
+            <maxHistory>30</maxHistory>
+            <!-- 모든 로그파일 용량 최대치 설정 -->
+            <totalSizeCap>300MB</totalSizeCap>
+            <!-- 앱 시작시 기존의 아카이빙된 로그파일 삭제 -->
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
+        </rollingPolicy>
+    </appender>
+
+    <!-- (Appender 설정) - 이메일 발송 appender -->
+    <!--<appender name="email" class="ch.qos.logback.classic.net.SMTPAppender">
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        &lt;!&ndash; SMTP 설정부분 &ndash;&gt;
+        <smtpHost>${smtp-host}</smtpHost>
+        <smtpPort>587</smtpPort>
+        &lt;!&ndash;<STARTTLS>true</STARTTLS>&ndash;&gt;
+        <asynchronousSending>false</asynchronousSending>
+        <username>${email-username}</username>
+        <password>${email-password}</password>
+        <to>${email-to}</to>
+        <from>${email-from}</from>
+
+        &lt;!&ndash; Mail 서식 &ndash;&gt;
+        <subject>Error: %logger{20} - %m</subject>
+        <layout class="ch.qos.logback.classic.html.HTMLLayout"/>
+        <cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
+            <bufferSize>1</bufferSize>
+        </cyclicBufferTracker>
+    </appender>-->
+
+    <!-- [ Profile별 설정 ] - 주로 배포 환경별 로거 레벨 설정 -->
+    <springProfile name="local">
+        <!-- (변수 정의) 로그파일 이름(기록중일 때) -->
+        <property name="FILENAME" value="development"/>
+
+        <!-- 로그 출력 레벨 설정(설정값 이상 출력) -->
+        <!-- (Root logger setting) logger 전역 설정 -->
+        <root level="INFO">
+<!--        <root level="DEBUG">-->
+            <appender-ref ref="console-logging"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <!-- (변수 정의) 로그파일 이름(기록중일 때) -->
+        <property name="FILENAME" value="prod"/>
+        <!-- prod환경에서 로그 출력 레벨 설정(설정값 이상 출력) -->
+        <root level="INFO">
+            <appender-ref ref="console-logging"/>
+            <!--            <appender-ref ref="dailyFileBased-all-logging"/>-->
+            <!--            <appender-ref ref="dailyFileBased-error-logging"/>-->
+        </root>
+    </springProfile>
+
+    <springProfile name="test">
+        <!-- prod환경에서 로그 출력 레벨 설정(설정값 이상 출력) -->
+        <root level="INFO">
+            <appender-ref ref="console-logging"/>
+        </root>
+    </springProfile>
+</configuration>
+

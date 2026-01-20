@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        compose_service_name = "lineus-fe"
+        workspace = "/home/jenkins/project/lineus-fe-dev"
+    }
+
+    stages {
+        stage('Checkout Source') {
+            steps {
+                ws("${workspace}") {
+                    git branch: 'devops', 
+                        url: 'git@github.com:Lomtech-Global/Lineus-Frontend.git'
+                }
+            }
+        }
+
+        stage('Docker Compose Down & Build') {
+            steps {
+                ws("${workspace}") {
+                    sh """
+                        docker compose down || true
+                        docker compose build --no-cache ${compose_service_name}
+                    """
+                }
+            }
+        }
+
+        stage('Docker Compose Up') {
+            steps {
+                ws("${workspace}") {
+                    sh "docker compose up -d ${compose_service_name}"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            ws("${workspace}") {
+                sh "docker compose ps || true"
+            }
+        }
+        failure {
+            echo "❌ Build or Deployment failed. Please check logs."
+        }
+        success {
+            echo "✅ Lineus-FE deployed successfully with Docker Compose!"
+        }
+    }
+}

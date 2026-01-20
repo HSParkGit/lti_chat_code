@@ -1,0 +1,229 @@
+From 6a26277f6fa1a46e6357e3318fc2bc2055259ac4 Mon Sep 17 00:00:00 2001
+From: JeongEuiHyun <dmlgus@linus.kr>
+Date: Tue, 14 Jan 2025 17:05:08 +0900
+Subject: [PATCH 2/2] =?UTF-8?q?=EC=84=B1=EC=A0=81=20=EB=B0=8F=20=EC=B6=9C?=
+ =?UTF-8?q?=EA=B2=B0=20=EA=B4=80=EB=A0=A8=20DDL?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ ddl_sql/assignment_group_grade.sql    | 22 ++++++++++++++++++++++
+ ddl_sql/attendance.sql                | 22 ++++++++++++++++++++++
+ ddl_sql/attendance_online_setting.sql | 23 +++++++++++++++++++++++
+ ddl_sql/attendance_setting.sql        | 21 +++++++++++++++++++++
+ ddl_sql/grade.sql                     | 24 ++++++++++++++++++++++++
+ ddl_sql/grade_point.sql               | 22 ++++++++++++++++++++++
+ ddl_sql/grade_setting.sql             | 17 +++++++++++++++++
+ 7 files changed, 151 insertions(+)
+ create mode 100644 ddl_sql/assignment_group_grade.sql
+ create mode 100644 ddl_sql/attendance.sql
+ create mode 100644 ddl_sql/attendance_online_setting.sql
+ create mode 100644 ddl_sql/attendance_setting.sql
+ create mode 100644 ddl_sql/grade.sql
+ create mode 100644 ddl_sql/grade_point.sql
+ create mode 100644 ddl_sql/grade_setting.sql
+
+diff --git a/ddl_sql/assignment_group_grade.sql b/ddl_sql/assignment_group_grade.sql
+new file mode 100644
+index 0000000..1556942
+--- /dev/null
++++ b/ddl_sql/assignment_group_grade.sql
+@@ -0,0 +1,22 @@
++-- kbu.assignment_group_grade definition
++
++CREATE TABLE `assignment_group_grade` (
++  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
++  `course_id` bigint DEFAULT NULL COMMENT '과목 ID',
++  `weight` int DEFAULT NULL COMMENT '가중치',
++  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `score` int DEFAULT NULL COMMENT '획득 점수',
++  `is_open` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '공개 여부',
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '삭제여부',
++  `grade_id` bigint DEFAULT NULL,
++  PRIMARY KEY (`id`),
++  KEY `FKky3a23b9o8qyorcf0nqsxwcrl` (`grade_id`),
++  CONSTRAINT `FKky3a23b9o8qyorcf0nqsxwcrl` FOREIGN KEY (`grade_id`) REFERENCES `grade` (`id`)
++) ENGINE=InnoDB AUTO_INCREMENT=344 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='그룹 테이블';
+\ No newline at end of file
+diff --git a/ddl_sql/attendance.sql b/ddl_sql/attendance.sql
+new file mode 100644
+index 0000000..93a510c
+--- /dev/null
++++ b/ddl_sql/attendance.sql
+@@ -0,0 +1,22 @@
++-- kbu.attendance definition
++
++CREATE TABLE `attendance` (
++  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
++  `user_id` bigint NOT NULL COMMENT '사용자 ID',
++  `lms_course_id` bigint DEFAULT NULL COMMENT '과목 Id',
++  `content_number` bigint NOT NULL COMMENT '차시',
++  `module_number` bigint NOT NULL COMMENT '주차',
++  `attendance_state` int DEFAULT '0' COMMENT '출결 상태',
++  `date` date DEFAULT NULL COMMENT '날짜',
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '삭제여부',
++  `class_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  PRIMARY KEY (`id`),
++  KEY `idx_attendance_deleted_flag` (`deleted_flag`)
++) ENGINE=InnoDB AUTO_INCREMENT=1145 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='출결관리 테이블';
+\ No newline at end of file
+diff --git a/ddl_sql/attendance_online_setting.sql b/ddl_sql/attendance_online_setting.sql
+new file mode 100644
+index 0000000..5465d3e
+--- /dev/null
++++ b/ddl_sql/attendance_online_setting.sql
+@@ -0,0 +1,23 @@
++-- kbu.attendance_online_setting definition
++
++CREATE TABLE `attendance_online_setting` (
++  `id` bigint NOT NULL AUTO_INCREMENT,
++  `lms_course_id` bigint NOT NULL,
++  `total_point` int NOT NULL,
++  `min_point` int NOT NULL DEFAULT '0',
++  `late_penalty_point` int DEFAULT NULL,
++  `absence_penalty_point` int NOT NULL DEFAULT '0',
++  `acceptance_criteria` int NOT NULL DEFAULT '0',
++  `module_acceptance_criteria` int NOT NULL DEFAULT '0',
++  `acceptance_progress_rate` int DEFAULT NULL,
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `use_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N',
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N',
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+\ No newline at end of file
+diff --git a/ddl_sql/attendance_setting.sql b/ddl_sql/attendance_setting.sql
+new file mode 100644
+index 0000000..f30d66a
+--- /dev/null
++++ b/ddl_sql/attendance_setting.sql
+@@ -0,0 +1,21 @@
++-- kbu.attendance_setting definition
++
++CREATE TABLE `attendance_setting` (
++  `id` bigint NOT NULL AUTO_INCREMENT,
++  `lms_course_id` bigint NOT NULL,
++  `total_point` int NOT NULL,
++  `min_point` int NOT NULL DEFAULT '0',
++  `late_penalty_point` int NOT NULL DEFAULT '0',
++  `absence_penalty_point` int NOT NULL DEFAULT '0',
++  `use_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N',
++  `options` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N',
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+\ No newline at end of file
+diff --git a/ddl_sql/grade.sql b/ddl_sql/grade.sql
+new file mode 100644
+index 0000000..e0b7368
+--- /dev/null
++++ b/ddl_sql/grade.sql
+@@ -0,0 +1,24 @@
++-- kbu.grade definition
++
++CREATE TABLE `grade` (
++  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
++  `course_id` bigint DEFAULT NULL COMMENT '과목 ID',
++  `grade_group_id` bigint DEFAULT NULL,
++  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `user_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `raw_score` int DEFAULT NULL,
++  `weight_score` double DEFAULT NULL,
++  `total_grade` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `total_point` double DEFAULT NULL,
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '삭제여부',
++  `offline_attendance_point` int DEFAULT NULL,
++  `online_attendance_point` int DEFAULT NULL,
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB AUTO_INCREMENT=1419 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='성적 테이블';
+\ No newline at end of file
+diff --git a/ddl_sql/grade_point.sql b/ddl_sql/grade_point.sql
+new file mode 100644
+index 0000000..5ec96b2
+--- /dev/null
++++ b/ddl_sql/grade_point.sql
+@@ -0,0 +1,22 @@
++-- kbu.grade_point definition
++
++CREATE TABLE `grade_point` (
++  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
++  `grade_setting_id` bigint DEFAULT NULL COMMENT '성적 설정 ID',
++  `grade` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `average_point` double DEFAULT NULL,
++  `ratio` int DEFAULT NULL COMMENT '비율',
++  `student_number` int DEFAULT NULL COMMENT '학생 수',
++  `cut_off_point` int DEFAULT NULL COMMENT '평가 기준 점수',
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '삭제여부',
++  PRIMARY KEY (`id`),
++  KEY `FKiuqql1rsi9eaqf2axqe83h670` (`grade_setting_id`),
++  CONSTRAINT `FKiuqql1rsi9eaqf2axqe83h670` FOREIGN KEY (`grade_setting_id`) REFERENCES `grade_setting` (`id`)
++) ENGINE=InnoDB AUTO_INCREMENT=361 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='성적 평가구성표 테이블';
+\ No newline at end of file
+diff --git a/ddl_sql/grade_setting.sql b/ddl_sql/grade_setting.sql
+new file mode 100644
+index 0000000..b5d4595
+--- /dev/null
++++ b/ddl_sql/grade_setting.sql
+@@ -0,0 +1,17 @@
++-- kbu.grade_setting definition
++
++CREATE TABLE `grade_setting` (
++  `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
++  `course_id` bigint DEFAULT NULL COMMENT '과목 ID',
++  `use_relative_evaluation` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '상대평가 사용 여부',
++  `evaluation_criteria` int DEFAULT NULL COMMENT '상대평가 기준',
++  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
++  `created_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `created_at` datetime(6) DEFAULT NULL,
++  `updated_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `updated_at` datetime(6) DEFAULT NULL,
++  `deleted_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
++  `deleted_at` datetime(6) DEFAULT NULL,
++  `deleted_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'N' COMMENT '삭제여부',
++  PRIMARY KEY (`id`)
++) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='성적 설정 테이블';
+\ No newline at end of file
+-- 
+2.45.2.windows.1
+

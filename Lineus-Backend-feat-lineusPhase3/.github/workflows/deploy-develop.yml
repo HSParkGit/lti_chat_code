@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - develop
+      - feat/lineusPhase3
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: develop
+    steps:
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "temurin"
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 8.2.1
+          gradle-home-cache-cleanup: true
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Execute build with Gradle wrapper
+        #        run: ./gradlew build
+        run: ./gradlew clean build -x test
+      - name: Azure Blob Upload with Destination folder defined
+        uses: LanceMcCarthy/Action-AzureBlobUpload@v2
+        with:
+          connection_string: ${{ secrets.AZURE_CONNECTION_STRING }}
+          container_name: lineus-be-deploy
+          source_folder: /home/runner/work/Lineus-Backend/Lineus-Backend/build/libs/kumoh-0.0.1-SNAPSHOT.jar
+          destination_folder: jar
+          delete_if_exists: true
+      - name: Deploy to dev
+        uses: appleboy/ssh-action@v1.1.0
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/lineusPhase3'
+        with:
+          host: ${{ secrets.TARGET_SERVER_IP }}
+          username: ${{ secrets.TARGET_SERVER_USERNAME }}
+          key: ${{ secrets.BASTION_KEY_TO_SERVER }}
+          proxy_host: ${{ secrets.BASTION_IP }}
+          proxy_username: ${{ secrets.BASTION_USERNAME }}
+          proxy_key: ${{ secrets.BASTION_KEY }}
+          proxy_port: 8232
+          script: |
+            cd /home/azureuser/lineus
+            rm -f /home/azureuser/lineus/kumoh-0.0.1-SNAPSHOT.jar
+            az storage blob download --account-name lomtechdeployment --container-name lineus-be-deploy --name jar/kumoh-0.0.1-SNAPSHOT.jar --file '/home/azureuser/lineus/kumoh-0.0.1-SNAPSHOT.jar'
+            docker compose build webapp
+            docker compose stop webapp 
+            docker compose up -d webapp

@@ -1,0 +1,226 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.2'
+    id 'io.spring.dependency-management' version '1.1.2'
+    // asciidoctor 플러그인 추가
+    id "org.asciidoctor.jvm.convert" version "3.3.2"
+}
+
+group = 'kr.cha'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    asciidoctorExt
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springCloudVersion', "2022.0.3")
+}
+
+// build executable jar
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    // start class location
+    manifest {
+        attributes 'Main-Class': 'kr.cha.base.BaseApplication'
+    }
+}
+
+dependencies {
+    // Spring-boot-starter = spring-web mvc, tomcat, json, logging(logback), yml,  ...
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    // Validation Tool
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // Actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // OpenFeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    // lombok
+    implementation 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0' // v1.18.16+ 부터
+    // WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // Spring Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // QueryDSL 설정
+    implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    // Database
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    //thumbnail
+    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.11'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // jwt 관련 라이브러리
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    //Panopto AccessToekn
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+
+    implementation group: 'org.jsoup', name: 'jsoup', version: '1.15.4'
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.15'
+    implementation group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+    implementation group: 'org.jdom', name: 'jdom', version: '2.0.2'
+
+    //redis
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.7.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // Import application.properties data (for import datasource)
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // TestContainer
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers:3.2.0'
+    testImplementation "org.testcontainers:mysql:1.19.3"
+
+    // H2 DB
+    runtimeOnly 'com.h2database:h2'
+
+    // MongoDB
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // RestDocs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+
+    // Configuration Properties
+    implementation 'org.springframework.boot:spring-boot-starter-parent:3.2.2'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2'
+
+    //SSO
+    implementation fileTree(dir: 'ssolib', include: ['*.jar'])
+
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+
+    // WEB SOCKET
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.apache.tomcat.embed:tomcat-embed-websocket'
+
+    // CSV
+    implementation("org.apache.commons:commons-csv:1.14.0")
+
+    // Dot Env
+    implementation("io.github.cdimascio:java-dotenv:5.2.2")
+
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('bootBuildImage') {
+    builder = 'paketobuildpacks/builder-jammy-base:latest'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Querydsl 설정
+def querydslDir = 'src/main/generated'
+
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+    main.java.srcDirs += [querydslDir]
+}
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+    delete file(querydslDir)
+}
+
+ext { // 전역 변수
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+//    outputs.dir snippetsDir
+    //enabled = false
+        useJUnitPlatform()
+        testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
+
+tasks.register("checkAsciiDoctorFolder") {
+    group 'Sample category'
+    description 'Tasks which shows a welcome message'
+
+    doLast {
+        def folder = file(snippetsDir)
+        if (!folder.exists()) {
+            folder.mkdirs()
+            println "created success: ${snippetsDir}"
+        }
+    }
+}
+
+asciidoctor {
+    dependsOn {
+        tasks.checkAsciiDoctorFolder
+    }
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+
+    sources { // 특정 파일만 html로 만든다.
+        include("**/index.adoc")
+    }
+    baseDirFollowsSourceFile() // 다른 adoc 파일을 include 할 때 경로를 baseDir로 맞추게 해주는 설정
+    dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    from("${asciidoctor.outputDir}") {
+        into 'static/docs'
+    }
+}

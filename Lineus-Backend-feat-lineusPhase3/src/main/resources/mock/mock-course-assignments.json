@@ -1,0 +1,78 @@
+[
+  {
+    "week": "Week 1",
+    "assignments": [
+      {
+        "title": "Assignment 1",
+        "completed": 5,
+        "inCompleted": 2,
+        "submissionTypes": ["Online", "Paper Submission"],
+        "dueAt": "2025-02-01T10:00:00"
+      },
+      {
+        "title": "Assignment 2",
+        "completed": 3,
+        "inCompleted": 4,
+        "submissionTypes": ["Online"],
+        "dueAt": "2025-02-05T10:00:00"
+      }
+    ]
+  },
+  {
+    "week": "Week 2",
+    "assignments": [
+      {
+        "title": "Assignment 1",
+        "completed": 5,
+        "inCompleted": 2,
+        "submissionTypes": ["Online", "Paper Submission"],
+        "dueAt": "2025-02-01T10:00:00"
+      },
+      {
+        "title": "Assignment 2",
+        "completed": 3,
+        "inCompleted": 4,
+        "submissionTypes": ["Online"],
+        "dueAt": "2025-02-05T10:00:00"
+      }
+    ]
+  },
+  {
+    "week": "Week 3",
+    "assignments": [
+      {
+        "title": "Assignment 1",
+        "completed": 5,
+        "inCompleted": 2,
+        "submissionTypes": ["Online", "Paper Submission"],
+        "dueAt": "2025-02-01T10:00:00"
+      },
+      {
+        "title": "Assignment 2",
+        "completed": 3,
+        "inCompleted": 4,
+        "submissionTypes": ["Online"],
+        "dueAt": "2025-02-05T10:00:00"
+      }
+    ]
+  },
+  {
+    "week": "Week 4",
+    "assignments": [
+      {
+        "title": "Assignment 1",
+        "completed": 5,
+        "inCompleted": 2,
+        "submissionTypes": ["Online", "Paper Submission"],
+        "dueAt": "2025-02-01T10:00:00"
+      },
+      {
+        "title": "Assignment 2",
+        "completed": 3,
+        "inCompleted": 4,
+        "submissionTypes": ["Online"],
+        "dueAt": "2025-02-05T10:00:00"
+      }
+    ]
+  }
+]

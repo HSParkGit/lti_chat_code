@@ -1,0 +1,76 @@
+{
+  "groups": [
+    {
+      "name": "backend",
+      "type": "net.lomtech.lti.config.BackendProperties",
+      "sourceType": "net.lomtech.lti.config.BackendProperties"
+    },
+    {
+      "name": "canvas",
+      "type": "net.lomtech.lti.config.CanvasProperties",
+      "sourceType": "net.lomtech.lti.config.CanvasProperties"
+    },
+    {
+      "name": "canvas.client-ids",
+      "type": "net.lomtech.lti.config.CanvasProperties$ClientIds",
+      "sourceType": "net.lomtech.lti.config.CanvasProperties",
+      "sourceMethod": "public net.lomtech.lti.config.CanvasProperties.ClientIds getClientIds() "
+    },
+    {
+      "name": "frontend",
+      "type": "net.lomtech.lti.config.FrontendProperties",
+      "sourceType": "net.lomtech.lti.config.FrontendProperties"
+    },
+    {
+      "name": "lti",
+      "type": "net.lomtech.lti.config.LtiProperties",
+      "sourceType": "net.lomtech.lti.config.LtiProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "backend.url",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.BackendProperties"
+    },
+    {
+      "name": "canvas.base-url",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.CanvasProperties"
+    },
+    {
+      "name": "canvas.client-ids.chat-room",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.CanvasProperties$ClientIds"
+    },
+    {
+      "name": "canvas.client-ids.chat-room-demo",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.CanvasProperties$ClientIds"
+    },
+    {
+      "name": "canvas.issuer",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.CanvasProperties"
+    },
+    {
+      "name": "frontend.base-url",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.FrontendProperties"
+    },
+    {
+      "name": "lti.base-url",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.LtiProperties"
+    },
+    {
+      "name": "lti.static-redirect-uri",
+      "type": "java.lang.String",
+      "sourceType": "net.lomtech.lti.config.LtiProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

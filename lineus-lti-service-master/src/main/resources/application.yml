@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:Hello-World-LTS}
+  web:
+    resources:
+      add-mappings: true
+
+server:
+  port: ${SERVER_PORT:9090}
+  error:
+    whitelabel:
+      enabled: false
+
+# Canvas LTI Configuration
+canvas:
+  issuer: ${CANVAS_ISSUER:https://canvas.instructure.com}
+  base-url: ${CANVAS_BASE_URL:https://canvas-lms.lomtech.net}
+  client-ids:
+    chat-room: ${CANVAS_CLIENT_ID_CHAT_ROOM:10000000000018}
+    chat-room-demo: ${CANVAS_CLIENT_ID_CHAT_ROOM_DEMO:10000000000016}
+
+# LTI Configuration
+lti:
+  base-url: ${LTI_BASE_URL:http://100.85.94.113:9090}
+# Frontend Configuration
+frontend:
+  base-url: ${FRONTEND_BASE_URL:https://lineus-fe.lomtech.net}
+
+# Backend Configuration (Chat Backend)
+backend:
+  url: ${BACKEND_URL:http://100.85.94.113:8080}
+
+

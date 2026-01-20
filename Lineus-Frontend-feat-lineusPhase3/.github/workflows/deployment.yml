@@ -1,0 +1,81 @@
+name: Deploy Lineus App
+
+on:
+  push:
+    branches:
+      - feat/lineusPhase3
+      - staging 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Copy .env file
+        run: cp ./.env.sample .env
+
+      - name: Build the React app
+        run: npm run build
+
+      - name: Copy .htaccess file
+        run: cp ./.htaccess ./dist/.htaccess
+
+      - name: Zipping the dist folder
+        run: tar -zcvf dist.tar.gz dist
+
+      - name: Azure Blob Upload with Destination folder defined
+        uses: LanceMcCarthy/Action-AzureBlobUpload@v2
+        with:
+          connection_string: ${{ secrets.AZURE_CONNECTION_STRING }}
+          container_name: lineus-fe-deploy
+          source_folder: ./dist.tar.gz
+          destination_folder: dist    
+          delete_if_exists: true 
+
+      - name: Deploy to dev
+        uses: appleboy/ssh-action@v1.1.0
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/lineusPhase3'
+        with:
+          host: ${{ secrets.TARGET_SERVER_IP }}
+          username: ${{ secrets.TARGET_SERVER_USERNAME }}
+          key: ${{ secrets.BASTION_KEY_TO_SERVER }}
+          proxy_host: ${{ secrets.BASTION_IP }}
+          proxy_username: ${{ secrets.BASTION_USERNAME }}
+          proxy_key: ${{ secrets.BASTION_KEY }}
+          proxy_port: 8232
+          script: |
+            cd /home/azureuser/lineus-fe
+            rm -f /home/azureuser/lineus-fe/dist.tar.gz            
+            az storage blob download --account-name lomtechdeployment --container-name lineus-fe-deploy --name dist/dist.tar.gz --file '/home/azureuser/lineus-fe/dist.tar.gz'
+            rm -rf /home/azureuser/lineus-fe/dist
+            tar -zxvf dist.tar.gz
+            rm -f /home/azureuser/lineus-fe/dist.tar.gz
+      - name: Deploy to staging
+        uses: appleboy/ssh-action@v1.1.0
+        if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+        with:
+          host: ${{ secrets.TARGET_SERVER_IP }}
+          username: ${{ secrets.TARGET_SERVER_USERNAME }}
+          key: ${{ secrets.BASTION_KEY_TO_SERVER }}
+          proxy_host: ${{ secrets.BASTION_IP }}
+          proxy_username: ${{ secrets.BASTION_USERNAME }}
+          proxy_key: ${{ secrets.BASTION_KEY }}
+          proxy_port: 8232
+          script: |
+            cd /home/azureuser/lineus-fe-staging
+            rm -f /home/azureuser/lineus-fe-staging/dist.tar.gz            
+            az storage blob download --account-name lomtechdeployment --container-name lineus-fe-deploy --name dist/dist.tar.gz --file '/home/azureuser/lineus-fe-staging/dist.tar.gz'
+            rm -rf /home/azureuser/lineus-fe-staging/dist
+            tar -zxvf dist.tar.gz
+            rm -f /home/azureuser/lineus-fe-staging/dist.tar.gz            

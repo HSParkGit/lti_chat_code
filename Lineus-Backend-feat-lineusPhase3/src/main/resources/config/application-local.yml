@@ -1,0 +1,98 @@
+# Local Environment
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  lifecycle:
+    # graceful shutdown max-time
+    timeout-per-shutdown-phase: 35s
+
+  # Server logging
+  logging:
+    file:
+      name: logs/app-prod.log
+    level:
+      root: INFO
+
+  # JPA setting
+  jpa:
+    open-in-view: false
+    hibernate:
+#      ddl-auto: none
+      ddl-auto: update
+      properties:
+        hibernate:
+          default_batch_fetch_size: 100
+    database: mysql
+    # Is hibernate init first?
+    defer-datasource-initialization: false
+
+  redis:
+    lettuce:
+      pool:
+        max-active: 5
+        max-idle: 5
+        min-idle: 2
+    host: ${redis-host}
+    port: ${redis-port}
+    password:
+
+  # Database connection
+  # 첫 번째 데이터베이스 (kumoh)
+  kumoh-datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: ${db-url}
+    url: ${db-url}
+    username: ${db-user}
+    password: ${db-pwd}
+    hikari:
+      #      maximum-pool-size: 10  # 최대 연결 수
+      #      minimum-idle: 2        # 최소 유휴 연결 수
+      #      idle-timeout: 60000    # 유휴 연결 타임아웃 (밀리초)
+      #      connection-timeout: 30000  # 연결 타임아웃 (밀리초)
+      #      max-lifetime: 1800000  # 최대 생명 주기 (밀리초)
+      #      maximum-pool-size: ${max-pool}
+      connection-timeout: 1100
+      keepalive-time: 30000
+      validation-timeout: 1000
+      max-lifetime: 600000
+      #      pool-name: core-db-pool
+      data-source-properties:
+        sockettimeout: 3000
+        cacheprepstmts: true
+        prepstmtcachesize: 250
+        prepstmtcachesqllimit: 2048
+        useserverprepstmts: true
+        uselocalsessionstate: true
+        rewritebatchedstatements: true
+        cacheresultsetmetadata: true
+        cacheserverconfiguration: true
+        elidesetautocommits: true
+        maintaintimestats: false
+
+ 
+
+canvas:
+  master-token: ${token}
+  root-account-id: 1
+  root-admin-id: 5
+
+jwt:
+  secret: ${jwt-secret}
+  access-token-time: ${jwt-access-token-time}
+  refresh-token-time: 86400
+  issuer: cha.lineedu.kr
+
+util:
+  service-url: ${server-url}
+  canvas-url: ${canvas-url}
+
+# Feign 타임아웃 설정 (Canvas 없을 때 빠르게 실패)
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 1000
+        readTimeout: 1000
+ 

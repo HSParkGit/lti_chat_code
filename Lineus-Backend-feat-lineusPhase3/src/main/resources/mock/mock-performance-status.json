@@ -1,0 +1,138 @@
+[
+  {
+    "id": 1,
+    "userId": 101,
+    "username": "john_doe",
+    "finalGrade": "A",
+    "finalScore": 92,
+    "attendanceInfo": {
+      "onSite": 15,
+      "online": 10
+    },
+    "assignmentInfo": {
+      "assignment": 85,
+      "midTerm": 90,
+      "finalTerm": 95
+    },
+    "scores": [
+      {
+        "userId": 101,
+        "assignmentId": 1,
+        "score": 85,
+        "submissionType": "online",
+        "previewUrl": "http://example.com/preview/1",
+        "anonymousId": "abc123"
+      },
+      {
+        "userId": 101,
+        "assignmentId": 2,
+        "score": 90,
+        "submissionType": "offline",
+        "previewUrl": "http://example.com/preview/2",
+        "anonymousId": "def456"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "userId": 101,
+    "username": "john_doe",
+    "finalGrade": "A",
+    "finalScore": 92,
+    "attendanceInfo": {
+      "onSite": 15,
+      "online": 10
+    },
+    "assignmentInfo": {
+      "assignment": 85,
+      "midTerm": 90,
+      "finalTerm": 95
+    },
+    "scores": [
+      {
+        "userId": 101,
+        "assignmentId": 1,
+        "score": 85,
+        "submissionType": "online",
+        "previewUrl": "http://example.com/preview/1",
+        "anonymousId": "abc123"
+      },
+      {
+        "userId": 101,
+        "assignmentId": 2,
+        "score": 90,
+        "submissionType": "offline",
+        "previewUrl": "http://example.com/preview/2",
+        "anonymousId": "def456"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "userId": 101,
+    "username": "john_doe",
+    "finalGrade": "A",
+    "finalScore": 92,
+    "attendanceInfo": {
+      "onSite": 15,
+      "online": 10
+    },
+    "assignmentInfo": {
+      "assignment": 85,
+      "midTerm": 90,
+      "finalTerm": 95
+    },
+    "scores": [
+      {
+        "userId": 101,
+        "assignmentId": 1,
+        "score": 85,
+        "submissionType": "online",
+        "previewUrl": "http://example.com/preview/1",
+        "anonymousId": "abc123"
+      },
+      {
+        "userId": 101,
+        "assignmentId": 2,
+        "score": 90,
+        "submissionType": "offline",
+        "previewUrl": "http://example.com/preview/2",
+        "anonymousId": "def456"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "userId": 101,
+    "username": "john_doe",
+    "finalGrade": "A",
+    "finalScore": 92,
+    "attendanceInfo": {
+      "onSite": 15,
+      "online": 10
+    },
+    "assignmentInfo": {
+      "assignment": 85,
+      "midTerm": 90,
+      "finalTerm": 95
+    },
+    "scores": [
+      {
+        "userId": 101,
+        "assignmentId": 1,
+        "score": 85,
+        "submissionType": "online",
+        "previewUrl": "http://example.com/preview/1",
+        "anonymousId": "abc123"
+      },
+      {
+        "userId": 101,
+        "assignmentId": 2,
+        "score": 90,
+        "submissionType": "offline",
+        "previewUrl": "http://example.com/preview/2",
+        "anonymousId": "def456"
+      }
+    ]
+  }
+]

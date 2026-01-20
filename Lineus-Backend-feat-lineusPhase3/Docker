@@ -1,0 +1,92 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_lineus
+      MYSQL_USER: lineus
+      MYSQL_PASSWORD: lineus
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: db_lineus
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webapp
+    restart: always
+    environment:
+      redis-host: redis
+      redis-port: 6379
+      db-url: jdbc:mysql://mysql:3306/db_lineus
+      db-user: lineus
+      db-pwd: lineus
+
+      m-host: redis
+      m-user: root
+      m-password: root
+      m-db: db_lineus
+
+      p-url: http://localhost:8080
+      p-user: your_psql_user
+      p-pwd: your_psql_password
+      p-id: your_psql_db
+      p-secret: your_psql_secret
+
+      token: rAzZHyKmEyMQzxUxzuvKTQADUCvGH4UahBYYmPDK3CY87ZQnvr8ZxRTRYZ8L3u8E
+
+      jwt-secret: eyJhbGciOiJIUzI1NiJ9=eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcwMzEyNjQzMiwiaWF0IjoxNzAzMTI2NDMyfQ=bTSHUpMXmbyhEMk0VD=XKYqcCopECBmphgRUqCcKFtE
+
+      server-url: https://test.metacubit.org
+      canvas-url: https://canvas-lms.lomtech.net
+      front-url: https://test.metacubit.org
+      master-password: your_master_password
+      init-password: your_init_password
+      role-number: 123
+      panopto-db-url: https://test.metacubit.org
+      reset-pwd: your_reset_password
+
+      file-dir: /tmp
+
+      instance: 2
+
+      zoom-url: https://api.zoom.us/v2/users
+
+    ports:
+      - "8888:8080"
+    depends_on:
+      - mysql
+      - mongodb
+      - redis
+
+volumes:
+  mysql-data:
+    driver: local
+  mongodb-data:
+  redis-data:

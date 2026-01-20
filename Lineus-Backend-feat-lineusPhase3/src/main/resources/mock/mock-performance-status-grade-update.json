@@ -1,0 +1,48 @@
+{
+  "relativeEvaluation": true,
+  "evaluationCriteria": "Number of student",
+  "gradeInfo": [
+    {
+      "grade": "A",
+      "gradePoint": 100,
+      "score": 95,
+      "ratio": 50,
+      "numberOfStudent": 30
+    },
+    {
+      "grade": "B",
+      "gradePoint": 100,
+      "score": 95,
+      "ratio": 50,
+      "numberOfStudent": 30
+    },
+    {
+      "grade": "C",
+      "gradePoint": 100,
+      "score": 95,
+      "ratio": 50,
+      "numberOfStudent": 30
+    },
+    {
+      "grade": "D",
+      "gradePoint": 100,
+      "score": 95,
+      "ratio": 50,
+      "numberOfStudent": 30
+    },
+    {
+      "grade": "E",
+      "gradePoint": 100,
+      "score": 95,
+      "ratio": 50,
+      "numberOfStudent": 30
+    },
+    {
+      "grade": "F",
+      "gradePoint": 100,
+      "score": 95,
+      "ratio": 50,
+      "numberOfStudent": 30
+    }
+  ]
+}

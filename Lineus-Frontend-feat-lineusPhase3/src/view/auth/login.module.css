@@ -1,0 +1,5 @@
+.bg_back {
+  /* background: red !important; */
+  background: url('/login-back.webp') no-repeat center;
+  background-size: cover;
+}

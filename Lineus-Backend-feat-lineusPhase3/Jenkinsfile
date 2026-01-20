@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        compose_service_name = "lineus-be"
+        workspace = "/home/jenkins/project/lineus-be-dev"
+    }
+
+    stages {
+        stage('Checkout Source') {
+            steps {
+                ws("${workspace}") {
+                    git branch: 'devops',
+                        credentialsId: 'github-repo-ssh',
+                        url: 'git@github.com:Lomtech-Global/Lineus-Backend.git'
+                }
+            }
+        }
+
+        stage('Gradle Build') {
+            steps {
+                ws("${workspace}") {
+                    sh """
+                        echo "Running Gradle build..."
+                        chmod +x gradlew
+                        ./gradlew clean build -x test
+                    """
+                }
+            }
+        }
+
+        stage('Docker Compose Down & Build') {
+            steps {
+                ws("${workspace}") {
+                    sh """
+                        echo "Stopping existing containers if any..."
+                        docker compose down || true
+
+                        echo "Building Docker Compose service..."
+                        docker compose build --no-cache ${compose_service_name}
+                    """
+                }
+            }
+        }
+
+        stage('Docker Compose Up') {
+            steps {
+                ws("${workspace}") {
+                    sh """
+                        echo "Starting Docker Compose service..."
+                        docker compose up -d ${compose_service_name}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            ws("${workspace}") {
+                sh "docker compose ps || true"
+            }
+        }
+        failure {
+            echo "❌ Backend build or deployment failed. Please check logs."
+        }
+        success {
+            echo "✅ Lineus-BE deployed successfully with Docker Compose!"
+        }
+    }
+}

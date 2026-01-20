@@ -1,0 +1,20 @@
+# default
+spring:
+  profiles:
+    active: ${Spring.profile.active:local}
+
+server:
+  port: 8080
+  servlet:
+    session:
+      persistent: true
+    encoding:
+      charset: UTF-8
+      force: true
+      force-response: true
+  shutdown: graceful
+  forward-headers-strategy: native
+
+logging:
+  config: classpath:logback-spring.xml
+
