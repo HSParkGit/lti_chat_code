@@ -73,7 +73,7 @@ export const chatServices = () => {
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      console.log(response.data, 'chat response');
+      // console.log(response.data, 'chat response');
       return response?.data?.content;
     } catch (error) {
       if (error instanceof ApiError) {

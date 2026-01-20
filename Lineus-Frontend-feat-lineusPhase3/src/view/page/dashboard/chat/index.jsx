@@ -140,12 +140,21 @@ function ChatTab({ hideProjectGroup }) {
   }, [individualChats, setIndividualCurrentChat]);
 
   const handleIndividualMessage = (message, senderId) => {
-    console.log(senderId, 'senderId in chat tab', 'otherUserIdRef:', otherUserIdRef.current);
-    if (otherUserIdRef.current && otherUserIdRef.current === senderId) {
-      addMessage(message);
-    }
-    queryClient.invalidateQueries({ queryKey: ['individualChats'] });
-    queryClient.invalidateQueries({ queryKey: ['messages', senderId] });
+    console.log('handleIndividualMessage called:', {
+      senderId,
+      senderIdType: typeof senderId,
+      otherUserIdRef: otherUserIdRef.current,
+      otherUserIdRefType: typeof otherUserIdRef.current,
+      isEqual: otherUserIdRef.current == senderId,
+      isStrictEqual: otherUserIdRef.current === senderId,
+      messageContent: message.content
+    });
+    // Always add message when we receive it via WebSocket (real-time update)
+    addMessage(message);
+    // Delay the query invalidation to avoid race condition
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ['individualChatsFetch'] });
+    }, 1000);
   };
 
   const handleGroupMessage = (message, groupId) => {

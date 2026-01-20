@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import kr.lineedu.lms.feature.chatSystem.api.dto.response.InviteLinkResponse;
@@ -41,6 +42,10 @@ public class ChatService {
     private final ParticipantRepository participantRepository;
     private final CanvasChatClient canvasChatClient;
     private final SimpMessagingTemplate messagingTemplate;
+
+    // Simple in-memory cache for Canvas user info to avoid repeated API calls
+    private final ConcurrentHashMap<Long, CanvasUserDto> userCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Boolean> failedUserIds = new ConcurrentHashMap<>();
 
     private Long getCurrentUserId() {
         JwtPrincipal principal = (JwtPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -239,9 +244,9 @@ public class ChatService {
                     log.debug("Skipping muted participant - chatId: {}, userId: {}", chat.getChatId(), participant.getUserId());
                     continue;
                 }
-                String userId = participant.getUserId().toString();
-                log.info("Sending to user: {} via /queue/messages", userId);
-                messagingTemplate.convertAndSendToUser(userId, "/queue/messages", messageResponse);
+                String destination = "/user/" + participant.getUserId() + "/queue/messages";
+                log.info("Sending to destination: {}", destination);
+                messagingTemplate.convertAndSend(destination, messageResponse);
             }
         }
 
@@ -267,10 +272,8 @@ public class ChatService {
             .collect(Collectors.toList());
     }
 
-    @Cacheable(
-        cacheNames = "chat:messages",
-        key = "T(java.lang.String).format('%s:%s:%s:%s', #chatId, #page, #size, T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().getPrincipal().lmsUserId)"
-    )
+    // @Cacheable disabled - Page<T> serialization issue with Redis
+    // TODO: Re-enable with proper Redis serializer configuration for Page objects
     public Page<MessageResponse> getMessages(String chatId, int page, int size) {
         Long currentUserId = getCurrentUserId();
 
@@ -532,24 +535,31 @@ public class ChatService {
         List<Participant> participants = participantRepository.findByChatIdAndDeletedFalse(chat.getChatId());
         List<UserResponse> userResponses = participants.stream()
             .map(p -> {
-                // Fetch user details from Canvas (no user data stored locally)
-                try {
-                    CanvasUserDto canvasUser = canvasChatClient.getUserById(p.getUserId(), null);
-                    return UserResponse.builder()
-                        .id(canvasUser.getId())
-                        .name(canvasUser.getName())
-                        .loginId(canvasUser.getLoginId())
-                        .email(canvasUser.getEmail())
-                        .avatarUrl(canvasUser.getAvatarUrl())
-                        .shortName(canvasUser.getShortName())
-                        .build();
-                } catch (Exception e) {
-                    // If Canvas API fails, return minimal info with just ID
-                    log.warn("Failed to fetch user {} from Canvas: {}", p.getUserId(), e.getMessage());
-                    return UserResponse.builder()
-                        .id(p.getUserId())
-                        .build();
+                Long userId = p.getUserId();
+                // Skip if we already know this user failed
+                if (failedUserIds.containsKey(userId)) {
+                    return UserResponse.builder().id(userId).build();
                 }
+                // Check cache first
+                CanvasUserDto canvasUser = userCache.get(userId);
+                if (canvasUser == null) {
+                    try {
+                        canvasUser = canvasChatClient.getUserById(userId, null);
+                        userCache.put(userId, canvasUser);
+                    } catch (Exception e) {
+                        log.warn("Failed to fetch user {} from Canvas, will skip future attempts: {}", userId, e.getMessage());
+                        failedUserIds.put(userId, true);
+                        return UserResponse.builder().id(userId).build();
+                    }
+                }
+                return UserResponse.builder()
+                    .id(canvasUser.getId())
+                    .name(canvasUser.getName())
+                    .loginId(canvasUser.getLoginId())
+                    .email(canvasUser.getEmail())
+                    .avatarUrl(canvasUser.getAvatarUrl())
+                    .shortName(canvasUser.getShortName())
+                    .build();
             })
             .collect(Collectors.toList());
 
@@ -593,14 +603,23 @@ public class ChatService {
             .messageType(message.getMessageType().name())
             .replyToMessageId(message.getReplyToMessageId());
 
-        // Fetch sender details from Canvas (no user data stored locally)
-        try {
-            CanvasUserDto sender = canvasChatClient.getUserById(message.getSenderId(), null);
-            builder.senderName(sender.getName())
-                   .senderAvatarUrl(sender.getAvatarUrl());
-        } catch (Exception e) {
-            log.warn("Failed to fetch sender {} from Canvas: {}", message.getSenderId(), e.getMessage());
-            // Leave senderName and senderAvatarUrl as null if Canvas API fails
+        // Fetch sender details from Canvas with caching
+        Long senderId = message.getSenderId();
+        if (!failedUserIds.containsKey(senderId)) {
+            CanvasUserDto sender = userCache.get(senderId);
+            if (sender == null) {
+                try {
+                    sender = canvasChatClient.getUserById(senderId, null);
+                    userCache.put(senderId, sender);
+                } catch (Exception e) {
+                    log.warn("Failed to fetch sender {} from Canvas, will skip future attempts: {}", senderId, e.getMessage());
+                    failedUserIds.put(senderId, true);
+                }
+            }
+            if (sender != null) {
+                builder.senderName(sender.getName())
+                       .senderAvatarUrl(sender.getAvatarUrl());
+            }
         }
 
         if (message.getReplyToMessageId() != null) {

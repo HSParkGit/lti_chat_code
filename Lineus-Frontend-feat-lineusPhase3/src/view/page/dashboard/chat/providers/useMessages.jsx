@@ -10,6 +10,13 @@ const messageReducer = (state, action) => {
         messages: action.payload,
       };
     case 'ADD_MESSAGE':
+      // Prevent duplicates by checking messageId (handle both snake_case and camelCase)
+      const newMsgId = action.payload.message_id || action.payload.messageId;
+      if (state.messages.some(m => (m.message_id || m.messageId) === newMsgId)) {
+        console.log('Duplicate message blocked:', newMsgId);
+        return state;
+      }
+      console.log('Adding new message:', newMsgId, action.payload.content);
       return {
         ...state,
         messages: [...state.messages, action.payload],

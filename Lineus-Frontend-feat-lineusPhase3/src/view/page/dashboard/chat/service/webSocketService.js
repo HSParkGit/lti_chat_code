@@ -60,13 +60,13 @@ export const createWebSocketService = () => {
         activeUserId = userId;
         setStatus('connected');
 
-        stompClient.subscribe(`/user/queue/messages`, (message) => {
+        stompClient.subscribe(`/user/${userId}/queue/messages`, (message) => {
           try {
             const parsedMessage = JSON.parse(message.body);
-            console.log('Received WebSocket message:', parsedMessage);
+            console.log('Received WebSocket message:', parsedMessage, 'userId:', userId);
 
-            // Determine who the "other user" is
-            const senderId = parsedMessage.sender_id === userId ? parsedMessage.receiver_id : parsedMessage.sender_id;
+            // Determine who the "other user" is (use == for type coercion)
+            const senderId = parsedMessage.sender_id == userId ? parsedMessage.receiver_id : parsedMessage.sender_id;
 
             onIndividualMessage(parsedMessage, senderId);
           } catch (error) {

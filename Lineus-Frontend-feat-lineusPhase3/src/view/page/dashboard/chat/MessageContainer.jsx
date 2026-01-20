@@ -89,6 +89,10 @@ export default function MessageContainer({ currentChat, chats, user, onSendSucce
   };
 
   const handleKeyDown = (e) => {
+    // Skip if IME is composing (한글 입력 중)
+    if (e.nativeEvent?.isComposing || e.isComposing) {
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (messageInput.trim()) {

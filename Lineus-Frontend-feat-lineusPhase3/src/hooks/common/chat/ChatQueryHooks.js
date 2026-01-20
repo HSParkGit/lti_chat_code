@@ -44,16 +44,14 @@ export const useConversationsWithMessages = (currentUserId, chatId) => {
 
     return conversations.map((conv, index) => {
       const messagesResult = messageQueries[index];
-      console.log(messagesResult, 'messages result');
-      const messages = messagesResult.data?.content || [];
-      messages?.length && messages.slice().reverse();
+      const messages = messagesResult?.data?.content || [];
       // Calculate the unread count from the fetched messages
       const unreadCount = messages.filter((m) => !m.read && m.sender_id !== currentUserId).length;
 
       return {
         ...conv,
         unreadCount,
-        isMessagesLoading: messagesResult.isLoading,
+        isMessagesLoading: messagesResult?.isLoading || false,
       };
     });
   }, [conversations, messageQueries, currentUserId]);
@@ -63,7 +61,7 @@ export const useConversationsWithMessages = (currentUserId, chatId) => {
 
 export const useFetchIndividualChat = (chatId) => {
   return useQuery({
-    queryKey: ['individualChats', chatId],
+    queryKey: ['messages', chatId],  // Same key as useConversationsWithMessages for deduplication
     queryFn: async () => {
       console.log('Fetching individual chat for chatId:', chatId);
       const response = await chatServices().getChat(chatId);
@@ -71,8 +69,8 @@ export const useFetchIndividualChat = (chatId) => {
     },
     enabled: !!chatId,
     keepPreviousData: true,
-    // staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    // refetchOnWindowFocus: false,
+    staleTime: 1000 * 60, // Cache for 1 minute to prevent duplicate fetches
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -19,7 +19,7 @@ public class STOMPWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/user","/group");
         registry.setApplicationDestinationPrefixes("/app");
-        registry.setUserDestinationPrefix("/user");
+        // Removed setUserDestinationPrefix to avoid conflict with /user/{userId} destinations
     }
 
     @Override
