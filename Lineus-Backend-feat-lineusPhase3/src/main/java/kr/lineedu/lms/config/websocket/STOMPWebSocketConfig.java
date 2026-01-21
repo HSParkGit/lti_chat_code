@@ -25,12 +25,13 @@ public class STOMPWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins(
+                .setAllowedOriginPatterns(
                         "http://127.0.0.1:5500",
                         "http://localhost:3000",
                         "http://localhost:3001",
                         "https://lineus-fe.lomtech.net",
-                        "https://linus-stg.lomtech.net"
+                        "https://linus-stg.lomtech.net",
+                        "https://*.trycloudflare.com"
                         )
                 .withSockJS();
     }

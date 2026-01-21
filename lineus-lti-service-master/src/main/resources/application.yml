@@ -21,13 +21,13 @@ canvas:
 
 # LTI Configuration
 lti:
-  base-url: ${LTI_BASE_URL:http://100.85.94.113:9090}
+  base-url: ${LTI_BASE_URL:https://processed-reggae-volume-passion.trycloudflare.com}
 # Frontend Configuration
 frontend:
-  base-url: ${FRONTEND_BASE_URL:https://lineus-fe.lomtech.net}
+  base-url: ${FRONTEND_BASE_URL:https://type-clear-duties-bring.trycloudflare.com}
 
 # Backend Configuration (Chat Backend)
 backend:
-  url: ${BACKEND_URL:http://100.85.94.113:8080}
+  url: ${BACKEND_URL:https://crowd-directories-email-attractions.trycloudflare.com}
 
 

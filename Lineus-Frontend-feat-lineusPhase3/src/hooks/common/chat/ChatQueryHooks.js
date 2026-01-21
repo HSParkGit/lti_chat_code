@@ -65,7 +65,7 @@ export const useFetchIndividualChat = (chatId) => {
     queryFn: async () => {
       console.log('Fetching individual chat for chatId:', chatId);
       const response = await chatServices().getChat(chatId);
-      return response.slice().reverse();
+      return (response || []).slice().reverse();
     },
     enabled: !!chatId,
     keepPreviousData: true,
@@ -109,7 +109,7 @@ export const useFetchGroupChat = (groupId) => {
     queryKey: ['groupChat', groupId],
     queryFn: async () => {
       const response = await chatServices().getGroupChat(groupId);
-      return response.slice().reverse();
+      return (response || []).slice().reverse();
     },
     keepPreviousData: true,
     enabled: !!groupId,
@@ -123,8 +123,9 @@ export const useFetchGroupChats = (select) => {
     queryKey: ['groupChats'],
     queryFn: async () => {
       const response = await chatServices().getGroupChats();
+      const chats = response || [];
 
-      const sorted = response.sort((a, b) => {
+      const sorted = chats.sort((a, b) => {
         const dateA = a.sentAt ? new Date(a.sentAt).getTime() : 0;
         const dateB = b.sentAt ? new Date(b.sentAt).getTime() : 0;
         return dateB - dateA;

@@ -6,13 +6,15 @@ const apiVer2 = import.meta.env.VITE_API_V2_KEY;
 const apiVer1 = import.meta.env.VITE_API_KEY;
 const service = axios.create({
   baseURL: apiVer1,
-  headers: {
-    Authorization: `Bearer ${useUserStore.getState().user?.accessToken}`,
-  },
 });
 
 service.interceptors.request.use(
   (config) => {
+    // Get fresh token for each request
+    const token = useUserStore.getState().user?.accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {

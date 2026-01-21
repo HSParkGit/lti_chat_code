@@ -211,7 +211,7 @@ function ChatTab({ hideProjectGroup }) {
         onChange={handleOnChange}
         className='flex h-full min-h-0 w-full flex-col pt-4'
       >
-        {/* <TabList className='mb-4 mt-2 flex flex-nowrap'>
+        <TabList className='mb-4 mt-2 flex flex-nowrap'>
           {visibleTabs.map((tab, index) => (
             <Tab
               key={tab.title}
@@ -225,7 +225,7 @@ function ChatTab({ hideProjectGroup }) {
               <p>{t(tab.title)}</p>
             </Tab>
           ))}
-        </TabList> */}
+        </TabList>
         <TabPanels className='flex min-h-0 w-full flex-1'>
           {TABS.map((tab) => (
             <TabPanel key={tab.title} className='flex h-full min-h-0 w-full flex-1' unmount={false}>

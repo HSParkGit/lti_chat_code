@@ -88,7 +88,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(
+        config.setAllowedOriginPatterns(
             List.of(
                 "https://demo.metacubit.kr",
                 "https://dev.metacubit.kr",
@@ -101,7 +101,8 @@ public class SecurityConfig {
                 "https://lineus-fe.lomtech.net",
                 "https://linus-stg.lomtech.net",
                 "http://127.0.0.1:5500",
-                "http://localhost:5500"
+                "http://localhost:5500",
+                "https://*.trycloudflare.com"
             ));
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));

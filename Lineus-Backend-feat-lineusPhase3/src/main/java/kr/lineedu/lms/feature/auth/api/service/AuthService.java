@@ -2,6 +2,8 @@ package kr.lineedu.lms.feature.auth.api.service;
 
 import io.jsonwebtoken.Claims;
 import kr.lineedu.lms.config.jwt.JwtTokenProvider;
+import kr.lineedu.lms.feature.auth.api.dto.request.SigninRequest;
+import kr.lineedu.lms.feature.auth.api.dto.response.SigninResponse;
 import kr.lineedu.lms.feature.chatSystem.api.dto.response.RefreshTokenResponse;
 import kr.lineedu.lms.feature.user.domain.User;
 import kr.lineedu.lms.feature.user.domain.UserRepository;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,46 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final PasswordEncoder passwordEncoder;
+
+    public SigninResponse signin(SigninRequest request) {
+        log.info("Signin attempt for user: {}", request.getUserNumber());
+
+        // Find user by loginId
+        User user = userRepository.findByLoginId(request.getUserNumber())
+            .orElseThrow(() -> {
+                log.warn("User not found: {}", request.getUserNumber());
+                return new BusinessException(ErrorCode.NOT_FOUND_USER_EXCEPTION, "Invalid credentials");
+            });
+
+        // Verify password
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            log.warn("Invalid password for user: {}", request.getUserNumber());
+            throw new BusinessException(ErrorCode.NOT_FOUND_USER_EXCEPTION, "Invalid credentials");
+        }
+
+        // Get role
+        Role role = Role.toEnum(user.getRole());
+        if (role == null) {
+            role = Role.STUDENT;
+        }
+
+        // Generate tokens
+        String accessToken = jwtTokenProvider.createAccessToken(user, role, user.getLoginId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user, role);
+
+        log.info("Signin successful for user: {}", request.getUserNumber());
+
+        return SigninResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .lmsUserId(user.getLmsUserId())
+            .userId(user.getId())
+            .name(user.getName())
+            .email(user.getEmail())
+            .role(role.name())
+            .build();
+    }
 
     public RefreshTokenResponse regenerateAccessToken(String refreshToken) {
         // Validate refresh token from Redis

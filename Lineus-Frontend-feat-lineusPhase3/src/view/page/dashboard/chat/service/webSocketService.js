@@ -33,7 +33,7 @@ export const createWebSocketService = () => {
       return connectionPromise;
     }
 
-    const token = localStorage.getItem('accessToken'); // ⬅️ obtain JWT here
+    const token = sessionStorage.getItem('accessToken'); // ⬅️ obtain JWT here
 
     setStatus('connecting');
     connectionPromise = new Promise((resolve, reject) => {

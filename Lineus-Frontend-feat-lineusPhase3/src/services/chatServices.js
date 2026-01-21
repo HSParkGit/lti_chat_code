@@ -38,16 +38,22 @@ export const chatServices = () => {
 
   const sendGroupMessage = async (messageData) => {
     try {
-      const response = await service.post('/group-chat/message/send', messageData);
+      // Convert groupId to chat_id format for backend
+      const request = {
+        chat_id: messageData.groupId,
+        content: messageData.message,
+        message_type: 'text',
+      };
+      const response = await service.post('/chat/messages', request);
       if (response?.errorCode) {
         throw new Error(response?.data?.errorMessage);
       }
-      return response?.data?.data;
+      return response?.data;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
-      throw new ApiError(`Failed to fetch Calendar Service: ${error.message}`);
+      throw new ApiError(`Failed to send group message: ${error.message}`);
     }
   };
 
@@ -57,13 +63,19 @@ export const chatServices = () => {
       if (response?.errorCode) {
         throw new Error(response?.data?.errorMessage);
       }
-
-      return response?.data;
+      // Filter only direct/individual chats and add unread_count
+      const allChats = response?.data || [];
+      return allChats
+        .filter(chat => chat.type === 'direct')
+        .map(chat => ({
+          ...chat,
+          unread_count: chat.unread_count || 0,
+        }));
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
-      throw new ApiError(`Failed to fetch chat Service: ${error.message}`);
+      throw new ApiError(`Failed to fetch chats: ${error.message}`);
     }
   };
 
@@ -145,17 +157,17 @@ export const chatServices = () => {
 
   const createGroupChat = async (groupData) => {
     try {
-      const response = await service.post('/group-chat/create', groupData);
+      const response = await service.post('/chat/group', groupData);
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      return response.data.data;
+      return response?.data;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
 
-      throw new ApiError(`Failed to fetch Chat Service: ${error.message}`);
+      throw new ApiError(`Failed to create group chat: ${error.message}`);
     }
   };
 
@@ -165,55 +177,65 @@ export const chatServices = () => {
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      return response.data.data;
+      // Filter only group chats and transform to expected format
+      const allChats = response?.data || [];
+      return allChats
+        .filter(chat => chat.type === 'group')
+        .map(chat => ({
+          ...chat,
+          groupId: chat.chat_id,
+          groupName: chat.name,
+          unread_count: chat.unread_count || 0,
+        }));
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
 
-      throw new ApiError(`Failed to fetch Chat Service: ${error.message}`);
+      throw new ApiError(`Failed to fetch group chats: ${error.message}`);
     }
   };
 
   const leaveGroup = async (groupId) => {
     try {
-      const response = await service.delete(`group-chat/${groupId}/leave`);
+      // Use delete conversation endpoint to leave group
+      const response = await service.delete(`/chat/conversations/${groupId}`);
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      return response.data.data;
+      return response?.data;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
 
-      throw new ApiError(`Failed to fetch Chat Service: ${error.message}`);
+      throw new ApiError(`Failed to leave group: ${error.message}`);
     }
   };
 
   const getGroupChat = async (group_id) => {
     try {
-      const response = await service.get(`/group-chat/message/${group_id}`);
+      const response = await service.get(`/chat/conversations/${group_id}/messages`);
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      return response.data.data;
+      return response?.data?.content;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
       }
 
-      throw new ApiError(`Failed to fetch Chat Service: ${error.message}`);
+      throw new ApiError(`Failed to fetch group chat: ${error.message}`);
     }
   };
 
   const muteGroupChat = async (group_id) => {
     try {
-      const response = await service.put(`/group-chat/${group_id}/mute`);
+      const response = await service.post(`/chat/conversations/${group_id}/mute`);
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      return response.data.data;
+      return response?.data;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;
@@ -223,11 +245,11 @@ export const chatServices = () => {
 
   const unmuteGroupChat = async (group_id) => {
     try {
-      const response = await service.put(`/group-chat/${group_id}/unmute`);
+      const response = await service.post(`/chat/conversations/${group_id}/unmute`);
       if (response.errorCode) {
         throw new Error(response.data.errorMessage);
       }
-      return response.data.data;
+      return response?.data;
     } catch (error) {
       if (error instanceof ApiError) {
         throw error;

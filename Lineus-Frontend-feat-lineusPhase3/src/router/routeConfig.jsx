@@ -6,5 +6,8 @@ const Chat = lazy(() => import('../view/page/dashboard/chat'));
 export const roleBasedRoutes = {
   path: '/dashboard',
   layout: <AdminLayout />,
-  routes: [{ path: '', element: <Chat /> }],
+  routes: [
+    { path: '', element: <Chat /> },
+    { path: 'chat', element: <Chat /> },
+  ],
 };
